@@ -4,24 +4,24 @@ import net.skyscanner.backpack.screenshots.ScreenshotTestsServer
 
 android {
     productFlavors {
-        screenshots {
-            dimension "version"
-            versionNameSuffix "-screenshots"
-            testInstrumentationRunnerArgument "notClass", "net.skyscanner.backpack.*"
-            testInstrumentationRunnerArgument "class", "net.skyscanner.backpack.docs.GenerateScreenshots"
+        create("screenshots") {
+            dimension = "version"
+            versionNameSuffix = "-screenshots"
+            testInstrumentationRunnerArguments["notClass"] = "net.skyscanner.backpack.*"
+            testInstrumentationRunnerArguments["class"] = "net.skyscanner.backpack.docs.GenerateScreenshots"
         }
     }
     sourceSets {
-        screenshots {
-            java.srcDirs = ['src/internal/java']
-            res.srcDirs = ['src/internal/res']
+        getByName("screenshots") {
+            java.srcDirs("src/internal/java")
+            res.srcDirs("src/internal/res")
         }
     }
     testOptions {
         animationsDisabled = true
         managedDevices {
-            managedDevices.devices {
-                Docs(ManagedVirtualDevice) {
+            devices {
+                create<ManagedVirtualDevice>("Docs") {
                     device = "Pixel"
                     apiLevel = 35
                     systemImageSource = "aosp"
@@ -31,30 +31,28 @@ android {
     }
 }
 
-def server = new ScreenshotTestsServer(rootProject.file("docs"))
+val server = ScreenshotTestsServer(rootProject.file("docs"))
 
-task startScreenshotsServer() {
+tasks.register("startScreenshotsServer") {
     doFirst {
         server.start()
     }
     finalizedBy("stopScreenshotsServer")
 }
 
-task stopScreenshotsServer() {
+tasks.register("stopScreenshotsServer") {
     doLast {
         server.close()
     }
 }
 
 // disable gradle caching for recording screenshots
-tasks.withType(ManagedDeviceInstrumentationTestTask) {
+tasks.withType<ManagedDeviceInstrumentationTestTask>().configureEach {
     outputs.upToDateWhen { device.get().name != "Docs" }
 }
 
-task recordScreenshots() {
-    mustRunAfter(
-        "startScreenshotsServer",
-    )
+tasks.register("recordScreenshots") {
+    mustRunAfter("startScreenshotsServer")
 
     dependsOn(
         "startScreenshotsServer",
