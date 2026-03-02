@@ -1,0 +1,9 @@
+include(
+    ":Backpack",
+    ":backpack-common",
+    ":backpack-compose",
+    ":backpack-lint",
+    ":meta:annotations",
+    ":meta:processor",
+    ":app"
+)
