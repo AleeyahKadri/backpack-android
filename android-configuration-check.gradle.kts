@@ -16,10 +16,10 @@
  * limitations under the License.
  */
 
-task lintOssDebug {
+tasks.register("lintOssDebug") {
     dependsOn("lintDebug")
 }
 
-task testOssDebugUnitTest {
+tasks.register("testOssDebugUnitTest") {
     dependsOn("testDebugUnitTest")
 }
